@@ -9,6 +9,7 @@ import MentorSetup from "./pages/MentorSetup";
 import Repositories from "./pages/Repositories";
 import RepositoryManagement from "./pages/RepositoryManagement";
 import Chat from "./pages/Chat";
+import StudentFeedback from "./pages/StudentFeedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
         <Route path="/repositories" element={<Repositories />} />
         <Route path="/repository-management" element={<RepositoryManagement />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/feedback" element={<StudentFeedback />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

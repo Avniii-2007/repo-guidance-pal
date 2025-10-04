@@ -176,6 +176,18 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
         </div>
       </div>
 
+      <div className="flex justify-end mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.href = '/feedback'}
+          className="neon-border"
+        >
+          <Star className="h-4 w-4 mr-2" />
+          View My Feedback
+        </Button>
+      </div>
+
       <Tabs defaultValue="discover" className="w-full">
         <TabsList className="grid w-full grid-cols-4 neon-border glass-effect">
           <TabsTrigger value="discover">

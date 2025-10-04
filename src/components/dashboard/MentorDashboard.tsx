@@ -69,7 +69,7 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
     }
   };
 
-  const handleRequestAction = async (requestId: string, action: "accepted" | "rejected") => {
+  const handleRequestAction = async (requestId: string, action: "accepted" | "rejected" | "completed") => {
     try {
       const { error } = await supabase
         .from("mentorship_requests")
@@ -78,10 +78,13 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
 
       if (error) throw error;
 
-      toast({
-        title: action === "accepted" ? "Request Accepted" : "Request Rejected",
-        description: `You have ${action} the mentorship request`,
-      });
+      const actionMessages = {
+        accepted: { title: "Request Accepted", description: "You have accepted the mentorship request" },
+        rejected: { title: "Request Rejected", description: "You have rejected the mentorship request" },
+        completed: { title: "Mentorship Ended", description: "You have disconnected from this student" }
+      };
+
+      toast(actionMessages[action]);
 
       fetchRequests();
     } catch (error: any) {
@@ -258,14 +261,22 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
                     <Badge variant="secondary">Active</Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-2">
                   <Button 
                     size="sm" 
                     onClick={() => navigate(`/chat?user=${request.student_id}`)}
-                    className="shadow-neon hover:shadow-glow"
+                    className="w-full shadow-neon hover:shadow-glow"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Open Chat
+                  </Button>
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleRequestAction(request.id, "completed")}
+                    className="w-full neon-border hover:bg-destructive/10"
+                  >
+                    Disconnect
                   </Button>
                 </CardContent>
               </Card>
