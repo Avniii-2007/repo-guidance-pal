@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { VoiceRecorder } from "@/components/ui/voice-recorder";
 
 interface SessionFeedbackDialogProps {
   open: boolean;
@@ -123,13 +124,19 @@ const SessionFeedbackDialog = ({
             <label className="text-sm font-medium">
               Additional Feedback (Optional)
             </label>
-            <Textarea
-              placeholder="Share your experience..."
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              rows={4}
-              className="resize-none"
-            />
+            <div className="flex gap-2">
+              <VoiceRecorder
+                onTranscribed={(text) => setFeedback(prev => prev + " " + text)}
+                disabled={submitting}
+              />
+              <Textarea
+                placeholder="Share your experience... (or use voice recording)"
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+                className="resize-none flex-1"
+              />
+            </div>
           </div>
 
           <Button

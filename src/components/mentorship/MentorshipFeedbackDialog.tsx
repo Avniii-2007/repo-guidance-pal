@@ -33,8 +33,6 @@ const MentorshipFeedbackDialog = ({
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    console.log("Submit feedback clicked", { mentorshipRequestId, studentId, mentorId, rating });
-    
     if (rating === 0) {
       toast({
         title: "Rating Required",
@@ -46,7 +44,6 @@ const MentorshipFeedbackDialog = ({
 
     setSubmitting(true);
     try {
-      console.log("Inserting feedback...");
       // Insert feedback
       const { error: feedbackError } = await supabase
         .from("mentorship_feedback")
@@ -58,26 +55,15 @@ const MentorshipFeedbackDialog = ({
           feedback_text: feedback || null,
         });
 
-      if (feedbackError) {
-        console.error("Feedback insert error:", feedbackError);
-        throw feedbackError;
-      }
-      
-      console.log("Feedback inserted successfully");
+      if (feedbackError) throw feedbackError;
 
-      console.log("Updating mentorship status to completed...");
       // Update mentorship request status to completed
       const { error: statusError } = await supabase
         .from("mentorship_requests")
         .update({ status: "completed" })
         .eq("id", mentorshipRequestId);
 
-      if (statusError) {
-        console.error("Status update error:", statusError);
-        throw statusError;
-      }
-      
-      console.log("Mentorship status updated successfully");
+      if (statusError) throw statusError;
 
       toast({
         title: "Feedback Submitted!",
@@ -92,7 +78,7 @@ const MentorshipFeedbackDialog = ({
       console.error("Error submitting feedback:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to submit feedback",
         variant: "destructive",
       });
     } finally {

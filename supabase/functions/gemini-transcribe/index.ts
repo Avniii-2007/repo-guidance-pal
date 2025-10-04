@@ -17,50 +17,66 @@ serve(async (req) => {
       throw new Error("No audio data provided");
     }
 
-    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
-    if (!GOOGLE_API_KEY) {
-      throw new Error("Google API key not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("Lovable API key not configured");
     }
 
-    console.log("Transcribing audio with Gemini...");
+    console.log("Transcribing audio with Lovable AI...");
 
-    // Convert base64 to binary
-    const binaryAudio = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
-
-    // Use Gemini API for audio transcription
+    // Use Lovable AI Gateway for audio transcription
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                text: "Transcribe this audio accurately. Return only the transcribed text without any additional commentary."
-              },
-              {
-                inline_data: {
-                  mime_type: "audio/webm",
-                  data: audio
+          model: "google/gemini-2.5-flash",
+          messages: [
+            {
+              role: "system",
+              content: "You are a transcription assistant. Transcribe the audio accurately and return only the transcribed text without any additional commentary."
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Please transcribe this audio."
+                },
+                {
+                  type: "input_audio",
+                  input_audio: {
+                    data: audio,
+                    format: "webm"
+                  }
                 }
-              }
-            ]
-          }]
+              ]
+            }
+          ]
         }),
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Gemini API error:", errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
+      console.error("Lovable AI error:", errorText);
+      
+      if (response.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again in a moment.");
+      }
+      if (response.status === 402) {
+        throw new Error("Credits exhausted. Please add credits to continue.");
+      }
+      
+      throw new Error(`AI service error: ${response.status}`);
     }
 
     const result = await response.json();
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const text = result.choices?.[0]?.message?.content || "";
 
     console.log("Transcription complete:", text);
 
@@ -70,7 +86,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error("Error in gemini-transcribe:", error);
+    console.error("Error in transcription:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
