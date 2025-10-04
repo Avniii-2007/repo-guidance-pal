@@ -94,7 +94,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center p-4 gradient-subtle">
       <Card className="w-full max-w-md shadow-elegant">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center gradient-primary bg-clip-text text-transparent">
+          <CardTitle className="text-2xl text-center bg-clip-text text-black">
             MentorMatch
           </CardTitle>
           <CardDescription className="text-center">
