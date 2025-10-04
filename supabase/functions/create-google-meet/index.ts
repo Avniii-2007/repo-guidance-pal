@@ -37,7 +37,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           summary: topic || "Mentorship Session",
-          description: "Mentorship session scheduled via MentorMatch",
+          description: "Mentorship session scheduled via OpenFuse",
           start: {
             dateTime: startDateTime.toISOString(),
             timeZone: "UTC",

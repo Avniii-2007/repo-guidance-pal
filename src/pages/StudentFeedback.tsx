@@ -160,7 +160,7 @@ const StudentFeedback = () => {
       <header className="neon-border glass-effect backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
-            MentorMatch
+            OpenFuse
           </h1>
           <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="neon-border">
             <ArrowLeft className="h-4 w-4 mr-2" />

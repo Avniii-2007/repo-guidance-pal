@@ -111,7 +111,7 @@ const Auth = () => {
                 <Code className="h-6 w-6 text-primary" />
               </div>
               <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                MentorMatch
+                OpenFuse
               </span>
             </div>
             <div className="space-y-2">

@@ -77,7 +77,7 @@ const Repositories = () => {
             >
               <Code className="h-8 w-8 text-primary group-hover:animate-float" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                MentorMatch
+                OpenFuse
               </span>
             </div>
             <div className="flex items-center gap-3">

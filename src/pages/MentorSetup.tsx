@@ -175,7 +175,7 @@ const MentorSetup = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-clip-text text-white">
-            MentorMatch
+            OpenFuse
           </h1>
           <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
             Back to Dashboard

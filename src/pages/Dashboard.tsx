@@ -95,7 +95,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-3">
               <Code className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                MentorMatch
+                OpenFuse
               </span>
             </div>
             <div className="flex items-center gap-4">
