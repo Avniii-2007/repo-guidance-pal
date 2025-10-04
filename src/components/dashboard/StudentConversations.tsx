@@ -7,17 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Sparkles, UserX, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import MentorDetailsDialog from "@/components/MentorDetailsDialog";
+import MentorshipFeedbackDialog from "@/components/mentorship/MentorshipFeedbackDialog";
 
 interface MentorshipRequest {
   id: string;
@@ -45,8 +36,8 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<MentorshipRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-  const [selectedMentorshipId, setSelectedMentorshipId] = useState<string | null>(null);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [selectedMentorship, setSelectedMentorship] = useState<MentorshipRequest | null>(null);
   const [mentorDetailsOpen, setMentorDetailsOpen] = useState(false);
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null);
 
@@ -88,34 +79,14 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
     }
   };
 
-  const handleDisconnect = async () => {
-    if (!selectedMentorshipId) return;
+  const handleDisconnect = (mentorship: MentorshipRequest) => {
+    setSelectedMentorship(mentorship);
+    setFeedbackDialogOpen(true);
+  };
 
-    try {
-      const { error } = await supabase
-        .from("mentorship_requests")
-        .update({ status: "completed" })
-        .eq("id", selectedMentorshipId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Disconnected",
-        description: "You have been disconnected from this mentor",
-      });
-
-      fetchConversations();
-    } catch (error: any) {
-      console.error("Error disconnecting:", error);
-      toast({
-        title: "Error",
-        description: "Failed to disconnect from mentor",
-        variant: "destructive",
-      });
-    } finally {
-      setDisconnectDialogOpen(false);
-      setSelectedMentorshipId(null);
-    }
+  const handleFeedbackSubmitted = () => {
+    fetchConversations();
+    setSelectedMentorship(null);
   };
 
   if (loading) {
@@ -190,10 +161,7 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => {
-                    setSelectedMentorshipId(conversation.id);
-                    setDisconnectDialogOpen(true);
-                  }}
+                  onClick={() => handleDisconnect(conversation)}
                   className="neon-border text-destructive hover:bg-destructive/10"
                 >
                   <UserX className="h-4 w-4 mr-2" />
@@ -205,22 +173,17 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
         )}
       </CardContent>
 
-      <AlertDialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Disconnect from Mentor?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to disconnect from this mentor? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDisconnect}>
-              Disconnect
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {selectedMentorship && (
+        <MentorshipFeedbackDialog
+          open={feedbackDialogOpen}
+          onOpenChange={setFeedbackDialogOpen}
+          mentorshipRequestId={selectedMentorship.id}
+          studentId={studentId}
+          mentorId={selectedMentorship.mentor_id}
+          mentorName={selectedMentorship.mentor.name}
+          onFeedbackSubmitted={handleFeedbackSubmitted}
+        />
+      )}
 
       {selectedMentorId && (
         <MentorDetailsDialog

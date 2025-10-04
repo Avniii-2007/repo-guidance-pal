@@ -8,6 +8,7 @@ import { Users, BookOpen, MessageSquare, CheckCircle, Sparkles, Calendar, Video,
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MentorSessions from "@/components/sessions/MentorSessions";
+import MentorFeedback from "@/components/dashboard/MentorFeedback";
 
 interface Profile {
   id: string;
@@ -185,6 +186,7 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
 
         <TabsContent value="sessions" className="space-y-6">
           <MentorSessions mentorId={profile.id} />
+          <MentorFeedback mentorId={profile.id} />
         </TabsContent>
 
         <TabsContent value="pending" className="space-y-4">

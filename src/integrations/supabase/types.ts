@@ -50,6 +50,44 @@ export type Database = {
           },
         ]
       }
+      mentorship_feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string | null
+          id: string
+          mentor_id: string
+          mentorship_request_id: string
+          rating: number
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          mentor_id: string
+          mentorship_request_id: string
+          rating: number
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          mentor_id?: string
+          mentorship_request_id?: string
+          rating?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_feedback_mentorship_request_id_fkey"
+            columns: ["mentorship_request_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mentorship_requests: {
         Row: {
           created_at: string
