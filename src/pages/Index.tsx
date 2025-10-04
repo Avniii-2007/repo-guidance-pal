@@ -20,7 +20,7 @@ const Index = () => {
             
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
               Find Your Perfect{" "}
-              <span className="gradient-primary bg-clip-text text-transparent">
+              <span className="bg-clip-text text-black">
                 Open Source Mentor
               </span>
             </h1>
