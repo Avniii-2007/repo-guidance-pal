@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, BookOpen, MessageSquare, CheckCircle, Sparkles, Calendar, Video } from "lucide-react";
+import { Users, BookOpen, MessageSquare, CheckCircle, Sparkles, Calendar, Video, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MentorSessions from "@/components/sessions/MentorSessions";
@@ -100,13 +100,23 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
     <div className="space-y-8">
       <div className="relative">
         <div className="absolute inset-0 gradient-glow opacity-50 blur-3xl"></div>
-        <div className="relative">
-          <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
-            Mentor Dashboard
-          </h2>
-          <p className="text-muted-foreground">
-            Manage sessions, requests, and guide students in open source
-          </p>
+        <div className="relative flex items-center justify-between">
+          <div>
+            <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
+              Mentor Dashboard
+            </h2>
+            <p className="text-muted-foreground">
+              Manage sessions, requests, and guide students in open source
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate('/repository-management')}
+            variant="outline"
+            className="neon-border"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Manage Repositories
+          </Button>
         </div>
       </div>
 
