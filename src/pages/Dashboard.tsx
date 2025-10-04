@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogOut } from "lucide-react";
+import { Loader2, LogOut, Code } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import StudentDashboard from "@/components/dashboard/StudentDashboard";
 import MentorDashboard from "@/components/dashboard/MentorDashboard";
 
@@ -45,7 +46,7 @@ const Dashboard = () => {
 
       if (error) throw error;
       setProfile(profileData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching profile:", error);
       toast({
         title: "Error",
@@ -61,10 +62,11 @@ const Dashboard = () => {
     try {
       await supabase.auth.signOut();
       navigate("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -72,8 +74,11 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="h-16 w-16 rounded-full bg-primary/20 animate-pulse mx-auto"></div>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -83,30 +88,45 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-mesh">
-      <header className="neon-border glass-effect backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
-            MentorMatch
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Welcome, <span className="text-primary font-medium">{profile.name}</span>
-            </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut} className="neon-border hover:bg-primary/10">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
+    <div className="min-h-screen bg-background">
+      <header className="fixed top-0 w-full z-50 glass-effect border-b border-border/50">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Code className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                MentorMatch
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground hidden sm:block">
+                Welcome, <span className="text-primary font-medium">{profile.name}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSignOut} 
+                  className="minimal-button px-4"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        {profile.role === "student" ? (
-          <StudentDashboard profile={profile} />
-        ) : (
-          <MentorDashboard profile={profile} />
-        )}
+      <main className="pt-20 pb-12">
+        <div className="container mx-auto px-6">
+          {profile.role === "student" ? (
+            <StudentDashboard profile={profile} />
+          ) : (
+            <MentorDashboard profile={profile} />
+          )}
+        </div>
       </main>
     </div>
   );

@@ -43,7 +43,7 @@ const StudentFeedback = () => {
 
       setStudentId(session.user.id);
       await fetchFeedback(session.user.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error:", error);
       toast({
         title: "Error",
@@ -102,7 +102,7 @@ const StudentFeedback = () => {
       if (sessionError) throw sessionError;
 
       // Combine and format both types of feedback
-      const formattedMentorshipFeedback = mentorshipData.map((item: any) => ({
+      const formattedMentorshipFeedback = mentorshipData.map((item: { id: string; rating: number; feedback_text: string | null; created_at: string; mentorship_requests: { repositories: { name: string } } }) => ({
         id: item.id,
         rating: item.rating,
         feedback_text: item.feedback_text,
@@ -116,7 +116,7 @@ const StudentFeedback = () => {
         },
       }));
 
-      const formattedSessionFeedback = sessionData.map((item: any) => ({
+      const formattedSessionFeedback = sessionData.map((item: { id: string; rating: number; feedback_text: string | null; created_at: string; sessions: { repositories: { name: string } } }) => ({
         id: item.id,
         rating: item.rating,
         feedback_text: item.feedback_text,
@@ -135,7 +135,7 @@ const StudentFeedback = () => {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setFeedback(allFeedback);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching feedback:", error);
       toast({
         title: "Error",

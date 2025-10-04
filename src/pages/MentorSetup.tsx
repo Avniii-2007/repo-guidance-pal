@@ -17,12 +17,23 @@ interface Repository {
   language: string | null;
 }
 
+interface Profile {
+  id: string;
+  name: string;
+  email: string;
+  role: "student" | "mentor";
+  bio: string | null;
+  profile_pic: string | null;
+  skills: string[] | null;
+  interests: string[] | null;
+}
+
 const MentorSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
   
@@ -66,7 +77,7 @@ const MentorSetup = () => {
       if (mentorReposRes.data) {
         setSelectedRepos(mentorReposRes.data.map(r => r.repository_id));
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading data:", error);
       toast({
         title: "Error",
@@ -138,11 +149,12 @@ const MentorSetup = () => {
       });
 
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving:", error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

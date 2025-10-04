@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Mic } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { VoiceRecorder } from "@/components/ui/voice-recorder";
+import { VoiceMessage, AudioPlayer } from "@/components/ui/voice-message";
 
 interface Message {
   id: string;
@@ -17,6 +17,9 @@ interface Message {
   content: string;
   created_at: string;
   read: boolean;
+  message_type?: 'text' | 'voice';
+  voice_message_url?: string;
+  voice_duration?: number;
 }
 
 interface OtherUser {
@@ -114,7 +117,7 @@ const Chat = () => {
 
       // Fetch messages
       await fetchMessages(session.user.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error initializing chat:", error);
       toast({
         title: "Error",
@@ -177,7 +180,7 @@ const Chat = () => {
 
       setNewMessage("");
       await fetchMessages(currentUserId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending message:", error);
       toast({
         title: "Error",
@@ -189,18 +192,87 @@ const Chat = () => {
     }
   };
 
+  const handleSendVoiceMessage = async (audioBlob: Blob, duration: number) => {
+    if (!userId || sending) return;
+
+    setSending(true);
+    try {
+      // Convert audio blob to base64 for storage in database
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64Data = reader.result as string;
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(audioBlob);
+      });
+
+      const base64Audio = await base64Promise;
+      
+      // Format duration for display
+      const formattedDuration = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
+      
+      // Create voice message content with embedded audio data
+      const voiceMessageContent = JSON.stringify({
+        type: 'voice',
+        duration: duration,
+        formattedDuration: formattedDuration,
+        audioData: base64Audio
+      });
+
+      // Save the message to the database
+      const { error: messageError } = await supabase
+        .from("messages")
+        .insert({
+          sender_id: currentUserId,
+          receiver_id: userId,
+          content: voiceMessageContent,
+        });
+
+      if (messageError) {
+        console.error('Database error details:', {
+          error: messageError,
+          messageContent: voiceMessageContent.substring(0, 200) + '...',
+          contentLength: voiceMessageContent.length
+        });
+        throw new Error(`Database error: ${messageError.message || 'Unknown error'}`);
+      }
+      
+      toast({
+        title: "Voice message sent",
+        description: "Your voice message has been delivered.",
+      });
+      
+      // Refresh messages to get the proper message from database
+      await fetchMessages(currentUserId);
+    } catch (error: unknown) {
+      console.error("Error sending voice message:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send voice message",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center gradient-subtle">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="h-16 w-16 rounded-full bg-primary/20 animate-pulse mx-auto"></div>
+          <p className="text-muted-foreground">Loading chat...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen gradient-mesh">
-      <header className="neon-border glass-effect backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+    <div className="min-h-screen bg-background">
+      <header className="fixed top-0 w-full z-50 glass-effect border-b border-border/50">
+        <div className="container mx-auto px-6 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-primary/10">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -208,7 +280,7 @@ const Chat = () => {
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={otherUser.profile_pic || undefined} />
-                <AvatarFallback>{otherUser.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="bg-primary/20">{otherUser.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
                 <h2 className="font-semibold">{otherUser.name}</h2>
@@ -219,30 +291,91 @@ const Chat = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
-        <Card className="neon-border glass-effect animate-fade-in">
-          <CardHeader>
-            <CardTitle className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Chat</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <main className="pt-20 pb-6">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <Card className="ultra-card fade-in">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="gradient-text">Chat with {otherUser?.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 p-6">
             <ScrollArea className="h-[500px] pr-4" ref={scrollRef}>
               <div className="space-y-4">
                 {messages.map((message) => {
                   const isSent = message.sender_id === currentUserId;
+                  
+                  // Parse voice message data
+                  let voiceMessageData = null;
+                  let isVoiceMessage = false;
+                  
+                  try {
+                    const parsed = JSON.parse(message.content);
+                    if (parsed.type === 'voice' && parsed.audioData) {
+                      voiceMessageData = parsed;
+                      isVoiceMessage = true;
+                    }
+                  } catch {
+                    // Not a JSON message, check for old format
+                    isVoiceMessage = message.content.includes('[Voice Message') || message.message_type === 'voice';
+                  }
+                  
                   return (
                     <div
                       key={message.id}
                       className={`flex ${isSent ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                        className={`max-w-[70%] rounded-lg px-4 py-3 ${
                           isSent
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                            : "ultra-card"
                         }`}
                       >
-                        <p className="text-sm break-words">{message.content}</p>
-                        <p className={`text-xs mt-1 ${isSent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                        {isVoiceMessage ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Mic className="h-4 w-4" />
+                              <span className="text-xs font-medium">Voice Message</span>
+                            </div>
+                            {voiceMessageData?.audioData ? (
+                              <AudioPlayer 
+                                audioUrl={voiceMessageData.audioData} 
+                                duration={voiceMessageData.duration}
+                                className="w-full"
+                              />
+                            ) : message.voice_message_url ? (
+                              <AudioPlayer 
+                                audioUrl={message.voice_message_url} 
+                                duration={message.voice_duration}
+                                className="w-full"
+                              />
+                            ) : (
+                              <div className="flex items-center gap-2 py-2">
+                                <div className="flex gap-1">
+                                  {Array.from({ length: 15 }).map((_, i) => (
+                                    <div
+                                      key={i}
+                                      className={`w-1 rounded-full ${
+                                        isSent ? "bg-primary-foreground/30" : "bg-primary/30"
+                                      }`}
+                                      style={{
+                                        height: `${Math.random() * 16 + 8}px`,
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-xs">
+                                  {voiceMessageData?.formattedDuration || 
+                                   message.content.match(/\d+:\d+/)?.[0] || '0:00'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm break-words">{message.content}</p>
+                        )}
+                        <p className={`text-xs mt-2 ${
+                          isSent ? "text-primary-foreground/70" : "text-muted-foreground"
+                        }`}>
                           {new Date(message.created_at).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -255,27 +388,34 @@ const Chat = () => {
               </div>
             </ScrollArea>
 
-            <form onSubmit={handleSendMessage} className="flex gap-2">
-              <VoiceRecorder
-                onTranscribed={(text) => setNewMessage(prev => prev + " " + text)}
+            <div className="space-y-3">
+              {/* Voice Message Component */}
+              <VoiceMessage 
+                onSendVoiceMessage={handleSendVoiceMessage}
                 disabled={sending}
               />
-              <Input
-                placeholder="Type your message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                disabled={sending}
-              />
-              <Button type="submit" disabled={!newMessage.trim() || sending} className="shadow-neon hover:shadow-glow">
-                {sending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
-            </form>
+              
+              {/* Text Message Form */}
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  placeholder="Type your message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  disabled={sending}
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={!newMessage.trim() || sending} className="shadow-neon hover:shadow-glow">
+                  {sending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </form>
+            </div>
           </CardContent>
         </Card>
+        </div>
       </main>
     </div>
   );

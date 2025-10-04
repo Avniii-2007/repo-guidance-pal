@@ -86,7 +86,7 @@ const RepositoryManagement = () => {
 
       if (error) throw error;
       setRepositories(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching repositories:", error);
       toast({
         title: "Error",
@@ -137,11 +137,12 @@ const RepositoryManagement = () => {
         stars: 0,
       });
       fetchRepositories();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving repository:", error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -176,11 +177,12 @@ const RepositoryManagement = () => {
       });
 
       fetchRepositories();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting repository:", error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }

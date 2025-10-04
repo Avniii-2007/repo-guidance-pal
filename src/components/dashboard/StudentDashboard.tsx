@@ -71,7 +71,7 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
         requestsMap[req.mentor_id] = req.status;
       });
       setMentorshipRequests(requestsMap);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching mentorship requests:", error);
     }
   };
@@ -101,11 +101,11 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
       // Transform data to include mentors array
       const reposWithMentors = (data || []).map(repo => ({
         ...repo,
-        mentors: repo.mentor_repositories?.map((mr: any) => mr.profiles).filter(Boolean) || []
+        mentors: repo.mentor_repositories?.map((mr: { profiles: unknown }) => mr.profiles).filter(Boolean) || []
       }));
       
       setRepositories(reposWithMentors);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching repositories:", error);
       toast({
         title: "Error",
@@ -153,11 +153,12 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
         title: "Request Sent!",
         description: `Your mentorship request for ${repoName} has been sent`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating request:", error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
