@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Clock, Video } from "lucide-react";
+import { Calendar, Clock, Video, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
+import SessionFeedbackDialog from "./SessionFeedbackDialog";
 
 interface Session {
   id: string;
@@ -14,6 +15,7 @@ interface Session {
   notes: string | null;
   status: string;
   zoom_join_url: string | null;
+  mentor_id: string;
   profiles: {
     name: string;
   };
@@ -26,6 +28,8 @@ const StudentSessions = ({ studentId }: { studentId: string }) => {
   const { toast } = useToast();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
   useEffect(() => {
     fetchSessions();
@@ -134,16 +138,32 @@ const StudentSessions = ({ studentId }: { studentId: string }) => {
                 {session.status}
               </Badge>
             </div>
-            {session.status === "approved" && session.zoom_join_url && (
-              <Button
-                size="sm"
-                onClick={() => window.open(session.zoom_join_url!, "_blank")}
-                className="shadow-neon hover:shadow-glow transition-smooth"
-              >
-                <Video className="h-4 w-4 mr-2" />
-                Join Meeting
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {session.status === "approved" && session.zoom_join_url && (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={() => window.open(session.zoom_join_url!, "_blank")}
+                    className="shadow-neon hover:shadow-glow transition-smooth"
+                  >
+                    <Video className="h-4 w-4 mr-2" />
+                    Join Meeting
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedSession(session);
+                      setFeedbackDialogOpen(true);
+                    }}
+                    className="neon-border"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Complete & Review
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         ))}
 
@@ -159,6 +179,18 @@ const StudentSessions = ({ studentId }: { studentId: string }) => {
           </div>
         )}
       </CardContent>
+
+      {selectedSession && (
+        <SessionFeedbackDialog
+          open={feedbackDialogOpen}
+          onOpenChange={setFeedbackDialogOpen}
+          sessionId={selectedSession.id}
+          studentId={studentId}
+          mentorId={selectedSession.mentor_id}
+          mentorName={selectedSession.profiles.name}
+          onFeedbackSubmitted={fetchSessions}
+        />
+      )}
     </Card>
   );
 };

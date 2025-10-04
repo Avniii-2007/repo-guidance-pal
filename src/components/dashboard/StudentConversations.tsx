@@ -5,8 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Sparkles } from "lucide-react";
+import { MessageSquare, Sparkles, UserX, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import MentorDetailsDialog from "@/components/MentorDetailsDialog";
 
 interface MentorshipRequest {
   id: string;
@@ -34,6 +45,10 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<MentorshipRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
+  const [selectedMentorshipId, setSelectedMentorshipId] = useState<string | null>(null);
+  const [mentorDetailsOpen, setMentorDetailsOpen] = useState(false);
+  const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchConversations();
@@ -70,6 +85,36 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!selectedMentorshipId) return;
+
+    try {
+      const { error } = await supabase
+        .from("mentorship_requests")
+        .update({ status: "completed" })
+        .eq("id", selectedMentorshipId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Disconnected",
+        description: "You have been disconnected from this mentor",
+      });
+
+      fetchConversations();
+    } catch (error: any) {
+      console.error("Error disconnecting:", error);
+      toast({
+        title: "Error",
+        description: "Failed to disconnect from mentor",
+        variant: "destructive",
+      });
+    } finally {
+      setDisconnectDialogOpen(false);
+      setSelectedMentorshipId(null);
     }
   };
 
@@ -123,18 +168,67 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
               <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
                 Active
               </Badge>
-              <Button
-                size="sm"
-                onClick={() => navigate(`/chat?user=${conversation.mentor_id}`)}
-                className="shadow-neon hover:shadow-glow transition-smooth"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Chat
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setSelectedMentorId(conversation.mentor_id);
+                    setMentorDetailsOpen(true);
+                  }}
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => navigate(`/chat?user=${conversation.mentor_id}`)}
+                  className="shadow-neon hover:shadow-glow transition-smooth"
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Chat
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedMentorshipId(conversation.id);
+                    setDisconnectDialogOpen(true);
+                  }}
+                  className="neon-border text-destructive hover:bg-destructive/10"
+                >
+                  <UserX className="h-4 w-4 mr-2" />
+                  Disconnect
+                </Button>
+              </div>
             </div>
           ))
         )}
       </CardContent>
+
+      <AlertDialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Disconnect from Mentor?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to disconnect from this mentor? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDisconnect}>
+              Disconnect
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {selectedMentorId && (
+        <MentorDetailsDialog
+          open={mentorDetailsOpen}
+          onOpenChange={setMentorDetailsOpen}
+          mentorId={selectedMentorId}
+        />
+      )}
     </Card>
   );
 };

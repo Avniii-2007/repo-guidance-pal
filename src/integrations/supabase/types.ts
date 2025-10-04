@@ -155,10 +155,12 @@ export type Database = {
           id: string
           interests: string[] | null
           name: string
+          past_contributions: string[] | null
           profile_pic: string | null
           role: Database["public"]["Enums"]["user_role"]
           skills: string[] | null
           updated_at: string
+          years_experience: number | null
         }
         Insert: {
           bio?: string | null
@@ -167,10 +169,12 @@ export type Database = {
           id: string
           interests?: string[] | null
           name: string
+          past_contributions?: string[] | null
           profile_pic?: string | null
           role: Database["public"]["Enums"]["user_role"]
           skills?: string[] | null
           updated_at?: string
+          years_experience?: number | null
         }
         Update: {
           bio?: string | null
@@ -179,10 +183,12 @@ export type Database = {
           id?: string
           interests?: string[] | null
           name?: string
+          past_contributions?: string[] | null
           profile_pic?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           skills?: string[] | null
           updated_at?: string
+          years_experience?: number | null
         }
         Relationships: []
       }
@@ -215,6 +221,44 @@ export type Database = {
           stars?: number | null
         }
         Relationships: []
+      }
+      session_feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string | null
+          id: string
+          mentor_id: string
+          rating: number
+          session_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          mentor_id: string
+          rating: number
+          session_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          mentor_id?: string
+          rating?: number
+          session_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_feedback_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sessions: {
         Row: {
@@ -294,7 +338,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_mentor_badge: {
+        Args: { mentor_id: string }
+        Returns: string
+      }
+      get_mentor_student_count: {
+        Args: { mentor_id: string }
+        Returns: number
+      }
     }
     Enums: {
       session_status:
