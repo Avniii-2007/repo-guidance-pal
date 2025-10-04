@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquare, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+interface Mentor {
+  id: string;
+  name: string;
+  profile_pic: string | null;
+}
+
 interface Repository {
   id: string;
   name: string;
@@ -13,6 +19,7 @@ interface Repository {
   github_url: string | null;
   stars: number | null;
   language: string | null;
+  mentors?: Mentor[];
 }
 
 interface Profile {
@@ -34,12 +41,29 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
     try {
       const { data, error } = await supabase
         .from("repositories")
-        .select("*")
+        .select(`
+          *,
+          mentor_repositories (
+            mentor_id,
+            profiles:mentor_id (
+              id,
+              name,
+              profile_pic
+            )
+          )
+        `)
         .order("stars", { ascending: false })
         .limit(10);
 
       if (error) throw error;
-      setRepositories(data || []);
+      
+      // Transform data to include mentors array
+      const reposWithMentors = (data || []).map(repo => ({
+        ...repo,
+        mentors: repo.mentor_repositories?.map((mr: any) => mr.profiles).filter(Boolean) || []
+      }));
+      
+      setRepositories(reposWithMentors);
     } catch (error: any) {
       console.error("Error fetching repositories:", error);
       toast({
@@ -136,6 +160,20 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
                   </div>
                 )}
               </div>
+              
+              {repo.mentors && repo.mentors.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Available Mentors:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {repo.mentors.map((mentor) => (
+                      <Badge key={mentor.id} variant="outline" className="text-xs">
+                        {mentor.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <Button
                   size="sm"
