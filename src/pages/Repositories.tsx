@@ -69,7 +69,7 @@ const Repositories = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 
-            className="text-2xl font-bold gradient-primary bg-clip-text text-transparent cursor-pointer"
+            className="text-2xl font-bold bg-clip-text text-pink cursor-pointer"
             onClick={() => navigate("/")}
           >
             MentorMatch
