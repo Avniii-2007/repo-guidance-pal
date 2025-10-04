@@ -85,7 +85,7 @@ const MentorSessions = ({ mentorId }: { mentorId: string }) => {
 
   const handleApprove = async (sessionId: string, scheduledAt: string, durationMinutes: number) => {
     try {
-      const { error } = await supabase.functions.invoke("create-zoom-meeting", {
+      const { error } = await supabase.functions.invoke("create-google-meet", {
         body: {
           sessionId,
           topic: "Mentorship Session",
@@ -98,7 +98,7 @@ const MentorSessions = ({ mentorId }: { mentorId: string }) => {
 
       toast({
         title: "Session Approved!",
-        description: "Zoom meeting created successfully",
+        description: "Google Meet created successfully",
       });
 
       fetchSessions();

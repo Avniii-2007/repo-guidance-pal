@@ -3,5 +3,11 @@ project_id = "pquncfufsmcztzidcltb"
 [functions.create-zoom-meeting]
 verify_jwt = true
 
+[functions.create-google-meet]
+verify_jwt = true
+
+[functions.gemini-transcribe]
+verify_jwt = true
+
 [functions.ai-repo-discovery]
 verify_jwt = true

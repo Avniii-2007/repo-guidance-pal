@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { VoiceRecorder } from "@/components/ui/voice-recorder";
 
 interface Message {
   id: string;
@@ -255,6 +256,10 @@ const Chat = () => {
             </ScrollArea>
 
             <form onSubmit={handleSendMessage} className="flex gap-2">
+              <VoiceRecorder
+                onTranscribed={(text) => setNewMessage(prev => prev + " " + text)}
+                disabled={sending}
+              />
               <Input
                 placeholder="Type your message..."
                 value={newMessage}
