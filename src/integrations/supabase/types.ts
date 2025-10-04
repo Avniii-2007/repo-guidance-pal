@@ -216,6 +216,79 @@ export type Database = {
         }
         Relationships: []
       }
+      sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          id: string
+          mentor_id: string
+          notes: string | null
+          repository_id: string
+          requested_at: string
+          scheduled_at: string | null
+          status: Database["public"]["Enums"]["session_status"]
+          student_id: string
+          updated_at: string
+          zoom_join_url: string | null
+          zoom_meeting_id: string | null
+          zoom_start_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          mentor_id: string
+          notes?: string | null
+          repository_id: string
+          requested_at?: string
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["session_status"]
+          student_id: string
+          updated_at?: string
+          zoom_join_url?: string | null
+          zoom_meeting_id?: string | null
+          zoom_start_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          mentor_id?: string
+          notes?: string | null
+          repository_id?: string
+          requested_at?: string
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["session_status"]
+          student_id?: string
+          updated_at?: string
+          zoom_join_url?: string | null
+          zoom_meeting_id?: string | null
+          zoom_start_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_repository_id_fkey"
+            columns: ["repository_id"]
+            isOneToOne: false
+            referencedRelation: "repositories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -224,6 +297,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      session_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "completed"
+        | "cancelled"
       user_role: "student" | "mentor"
     }
     CompositeTypes: {
@@ -352,6 +431,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      session_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "completed",
+        "cancelled",
+      ],
       user_role: ["student", "mentor"],
     },
   },

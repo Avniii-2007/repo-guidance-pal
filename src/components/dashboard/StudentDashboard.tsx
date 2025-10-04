@@ -3,10 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquare, Star, Sparkles } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, MessageSquare, Star, Sparkles, Calendar, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MentorSelectionDialog from "@/components/MentorSelectionDialog";
 import StudentConversations from "./StudentConversations";
+import StudentSessions from "@/components/sessions/StudentSessions";
+import SessionScheduler from "@/components/sessions/SessionScheduler";
+import AIRepoDiscovery from "@/components/ai/AIRepoDiscovery";
 
 interface Mentor {
   id: string;
@@ -38,6 +42,13 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
   const [loading, setLoading] = useState(true);
   const [selectedRepo, setSelectedRepo] = useState<{ id: string; name: string; mentors: Mentor[] } | null>(null);
   const [showMentorDialog, setShowMentorDialog] = useState(false);
+  const [schedulerData, setSchedulerData] = useState<{
+    mentorId: string;
+    mentorName: string;
+    repoId: string;
+    repoName: string;
+  } | null>(null);
+  const [showScheduler, setShowScheduler] = useState(false);
 
   useEffect(() => {
     fetchRepositories();
@@ -84,28 +95,14 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
     }
   };
 
-  const handleConnect = async (repo: Repository) => {
-    if (!repo.mentors || repo.mentors.length === 0) {
-      toast({
-        title: "No Mentors Available",
-        description: `No mentors are currently available for ${repo.name}`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (repo.mentors.length === 1) {
-      // Only one mentor, create request directly
-      await createMentorshipRequest(repo.id, repo.name, repo.mentors[0].id);
-    } else {
-      // Multiple mentors, show selection dialog
-      setSelectedRepo({
-        id: repo.id,
-        name: repo.name,
-        mentors: repo.mentors,
-      });
-      setShowMentorDialog(true);
-    }
+  const handleConnect = async (repo: Repository, mentor: Mentor) => {
+    setSchedulerData({
+      mentorId: mentor.id,
+      mentorName: mentor.name,
+      repoId: repo.id,
+      repoName: repo.name,
+    });
+    setShowScheduler(true);
   };
 
   const createMentorshipRequest = async (repoId: string, repoName: string, mentorId: string) => {
@@ -145,16 +142,39 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
         <div className="absolute inset-0 gradient-glow opacity-50 blur-3xl"></div>
         <div className="relative">
           <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
-            Explore Open Source Projects
+            Your Mentorship Journey
           </h2>
           <p className="text-muted-foreground">
-            Find projects you're interested in and connect with experienced mentors
+            Discover projects, connect with mentors, and grow your skills
           </p>
         </div>
       </div>
 
-      <StudentConversations studentId={profile.id} />
+      <Tabs defaultValue="discover" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 neon-border glass-effect">
+          <TabsTrigger value="discover">
+            <Brain className="h-4 w-4 mr-2" />
+            AI Discovery
+          </TabsTrigger>
+          <TabsTrigger value="repositories">
+            <BookOpen className="h-4 w-4 mr-2" />
+            All Repos
+          </TabsTrigger>
+          <TabsTrigger value="sessions">
+            <Calendar className="h-4 w-4 mr-2" />
+            Sessions
+          </TabsTrigger>
+          <TabsTrigger value="conversations">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Chats
+          </TabsTrigger>
+        </TabsList>
 
+        <TabsContent value="discover" className="space-y-6">
+          <AIRepoDiscovery />
+        </TabsContent>
+
+        <TabsContent value="repositories" className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {repositories.map((repo, index) => (
           <Card 
@@ -191,35 +211,34 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
               {repo.mentors && repo.mentors.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Available Mentors:</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="space-y-2">
                     {repo.mentors.map((mentor) => (
-                      <Badge key={mentor.id} variant="outline" className="text-xs">
-                        {mentor.name}
-                      </Badge>
+                      <div key={mentor.id} className="flex items-center justify-between p-2 rounded bg-card/50 neon-border">
+                        <span className="text-xs">{mentor.name}</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleConnect(repo, mentor)}
+                          className="hover:shadow-neon transition-smooth"
+                        >
+                          Schedule
+                        </Button>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
               
-              <div className="flex gap-2">
+              {repo.github_url && (
                 <Button
                   size="sm"
-                  className="flex-1 shadow-neon hover:shadow-glow transition-smooth"
-                  onClick={() => handleConnect(repo)}
+                  variant="outline"
+                  onClick={() => window.open(repo.github_url!, "_blank")}
+                  className="w-full neon-border"
                 >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Find Mentor
+                  View on GitHub
                 </Button>
-                {repo.github_url && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => window.open(repo.github_url!, "_blank")}
-                  >
-                    View
-                  </Button>
-                )}
-              </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -236,14 +255,32 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
           <p className="text-muted-foreground">No repositories found</p>
         </div>
       )}
+        </TabsContent>
 
-      {selectedRepo && (
-        <MentorSelectionDialog
-          open={showMentorDialog}
-          onOpenChange={setShowMentorDialog}
-          mentors={selectedRepo.mentors}
-          repositoryName={selectedRepo.name}
-          onSelectMentor={(mentorId) => createMentorshipRequest(selectedRepo.id, selectedRepo.name, mentorId)}
+        <TabsContent value="sessions">
+          <StudentSessions studentId={profile.id} />
+        </TabsContent>
+
+        <TabsContent value="conversations">
+          <StudentConversations studentId={profile.id} />
+        </TabsContent>
+      </Tabs>
+
+      {schedulerData && (
+        <SessionScheduler
+          open={showScheduler}
+          onOpenChange={setShowScheduler}
+          mentorId={schedulerData.mentorId}
+          mentorName={schedulerData.mentorName}
+          repositoryId={schedulerData.repoId}
+          repositoryName={schedulerData.repoName}
+          onScheduled={() => {
+            setShowScheduler(false);
+            toast({
+              title: "Session Requested!",
+              description: "Your mentor will review and approve your session",
+            });
+          }}
         />
       )}
     </div>

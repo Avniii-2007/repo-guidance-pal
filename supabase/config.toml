@@ -1,1 +1,7 @@
 project_id = "pquncfufsmcztzidcltb"
+
+[functions.create-zoom-meeting]
+verify_jwt = true
+
+[functions.ai-repo-discovery]
+verify_jwt = true

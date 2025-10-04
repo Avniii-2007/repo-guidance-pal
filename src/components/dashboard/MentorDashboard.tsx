@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, BookOpen, MessageSquare, CheckCircle, Sparkles } from "lucide-react";
+import { Users, BookOpen, MessageSquare, CheckCircle, Sparkles, Calendar, Video } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MentorSessions from "@/components/sessions/MentorSessions";
 
 interface Profile {
   id: string;
@@ -104,7 +105,7 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
             Mentor Dashboard
           </h2>
           <p className="text-muted-foreground">
-            Manage your mentorships and help students grow in open source
+            Manage sessions, requests, and guide students in open source
           </p>
         </div>
       </div>
@@ -155,12 +156,26 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
         </Card>
       </div>
 
-      <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="pending">Pending ({pendingRequests.length})</TabsTrigger>
-          <TabsTrigger value="active">Active ({acceptedRequests.length})</TabsTrigger>
-          <TabsTrigger value="completed">Completed ({completedRequests.length})</TabsTrigger>
+      <Tabs defaultValue="sessions" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 neon-border glass-effect">
+          <TabsTrigger value="sessions">
+            <Video className="h-4 w-4 mr-2" />
+            Sessions
+          </TabsTrigger>
+          <TabsTrigger value="pending">
+            Pending ({pendingRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value="active">
+            Active ({acceptedRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value="completed">
+            Completed ({completedRequests.length})
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="sessions" className="space-y-6">
+          <MentorSessions mentorId={profile.id} />
+        </TabsContent>
 
         <TabsContent value="pending" className="space-y-4">
           {loading ? (
