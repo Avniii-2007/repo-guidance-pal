@@ -80,6 +80,7 @@ const StudentConversations = ({ studentId }: StudentConversationsProps) => {
   };
 
   const handleDisconnect = (mentorship: MentorshipRequest) => {
+    console.log("Disconnect clicked for mentorship:", mentorship);
     setSelectedMentorship(mentorship);
     setFeedbackDialogOpen(true);
   };
