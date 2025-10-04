@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ interface MentorshipRequest {
 }
 
 const MentorDashboard = ({ profile }: { profile: Profile }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [requests, setRequests] = useState<MentorshipRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -225,7 +227,11 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => navigate(`/chat?user=${request.student_id}`)}
+                  >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Open Chat
                   </Button>

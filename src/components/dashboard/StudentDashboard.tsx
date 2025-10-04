@@ -5,11 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquare, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import MentorSelectionDialog from "@/components/MentorSelectionDialog";
 
 interface Mentor {
   id: string;
   name: string;
   profile_pic: string | null;
+  bio?: string | null;
+  skills?: string[] | null;
 }
 
 interface Repository {
@@ -32,6 +35,8 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
   const { toast } = useToast();
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedRepo, setSelectedRepo] = useState<{ id: string; name: string; mentors: Mentor[] } | null>(null);
+  const [showMentorDialog, setShowMentorDialog] = useState(false);
 
   useEffect(() => {
     fetchRepositories();
@@ -48,7 +53,9 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
             profiles:mentor_id (
               id,
               name,
-              profile_pic
+              profile_pic,
+              bio,
+              skills
             )
           )
         `)
@@ -76,34 +83,40 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
     }
   };
 
-  const handleConnect = async (repoId: string, repoName: string) => {
+  const handleConnect = async (repo: Repository) => {
+    if (!repo.mentors || repo.mentors.length === 0) {
+      toast({
+        title: "No Mentors Available",
+        description: `No mentors are currently available for ${repo.name}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (repo.mentors.length === 1) {
+      // Only one mentor, create request directly
+      await createMentorshipRequest(repo.id, repo.name, repo.mentors[0].id);
+    } else {
+      // Multiple mentors, show selection dialog
+      setSelectedRepo({
+        id: repo.id,
+        name: repo.name,
+        mentors: repo.mentors,
+      });
+      setShowMentorDialog(true);
+    }
+  };
+
+  const createMentorshipRequest = async (repoId: string, repoName: string, mentorId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Find mentors for this repository
-      const { data: mentorRepos, error: mentorError } = await supabase
-        .from("mentor_repositories")
-        .select("mentor_id")
-        .eq("repository_id", repoId);
-
-      if (mentorError) throw mentorError;
-
-      if (!mentorRepos || mentorRepos.length === 0) {
-        toast({
-          title: "No Mentors Available",
-          description: `No mentors are currently available for ${repoName}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Create mentorship request with first available mentor
       const { error: requestError } = await supabase
         .from("mentorship_requests")
         .insert({
           student_id: session.user.id,
-          mentor_id: mentorRepos[0].mentor_id,
+          mentor_id: mentorId,
           repository_id: repoId,
           status: "pending",
           message: `I'm interested in learning more about ${repoName}`,
@@ -178,7 +191,7 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
                 <Button
                   size="sm"
                   className="flex-1"
-                  onClick={() => handleConnect(repo.id, repo.name)}
+                  onClick={() => handleConnect(repo)}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Find Mentor
@@ -208,6 +221,16 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
         <div className="text-center py-12">
           <p className="text-muted-foreground">No repositories found</p>
         </div>
+      )}
+
+      {selectedRepo && (
+        <MentorSelectionDialog
+          open={showMentorDialog}
+          onOpenChange={setShowMentorDialog}
+          mentors={selectedRepo.mentors}
+          repositoryName={selectedRepo.name}
+          onSelectMentor={(mentorId) => createMentorshipRequest(selectedRepo.id, selectedRepo.name, mentorId)}
+        />
       )}
     </div>
   );
