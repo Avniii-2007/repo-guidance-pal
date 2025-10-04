@@ -53,10 +53,52 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
   };
 
   const handleConnect = async (repoId: string, repoName: string) => {
-    toast({
-      title: "Connection Request",
-      description: `Request to connect for ${repoName} will be implemented soon!`,
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Find mentors for this repository
+      const { data: mentorRepos, error: mentorError } = await supabase
+        .from("mentor_repositories")
+        .select("mentor_id")
+        .eq("repository_id", repoId);
+
+      if (mentorError) throw mentorError;
+
+      if (!mentorRepos || mentorRepos.length === 0) {
+        toast({
+          title: "No Mentors Available",
+          description: `No mentors are currently available for ${repoName}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create mentorship request with first available mentor
+      const { error: requestError } = await supabase
+        .from("mentorship_requests")
+        .insert({
+          student_id: session.user.id,
+          mentor_id: mentorRepos[0].mentor_id,
+          repository_id: repoId,
+          status: "pending",
+          message: `I'm interested in learning more about ${repoName}`,
+        });
+
+      if (requestError) throw requestError;
+
+      toast({
+        title: "Request Sent!",
+        description: `Your mentorship request for ${repoName} has been sent`,
+      });
+    } catch (error: any) {
+      console.error("Error creating request:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

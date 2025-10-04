@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Users, BookOpen, MessageSquare, CheckCircle } from "lucide-react";
 
 interface Profile {
@@ -80,6 +81,9 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
               <li>Start accepting mentorship requests</li>
             </ul>
           </div>
+          <Button onClick={() => window.location.href = '/mentor-setup'} className="w-full">
+            Set Up Profile
+          </Button>
         </CardContent>
       </Card>
     </div>
