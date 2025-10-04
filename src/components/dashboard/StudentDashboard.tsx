@@ -61,7 +61,8 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
       const { data, error } = await supabase
         .from("mentorship_requests")
         .select("mentor_id, status")
-        .eq("student_id", profile.id);
+        .eq("student_id", profile.id)
+        .in("status", ["pending", "accepted"]); // Only fetch active requests
 
       if (error) throw error;
       
