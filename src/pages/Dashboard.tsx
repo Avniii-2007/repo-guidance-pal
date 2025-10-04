@@ -83,17 +83,17 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-subtle">
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen gradient-mesh">
+      <header className="neon-border glass-effect backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
             MentorMatch
           </h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">
-              Welcome, {profile.name}
+              Welcome, <span className="text-primary font-medium">{profile.name}</span>
             </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="neon-border hover:bg-primary/10">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>

@@ -197,10 +197,10 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-subtle">
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen gradient-mesh">
+      <header className="neon-border glass-effect backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-primary/10">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           {otherUser && (
@@ -219,9 +219,9 @@ const Chat = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
-        <Card className="shadow-elegant">
+        <Card className="neon-border glass-effect animate-fade-in">
           <CardHeader>
-            <CardTitle>Chat</CardTitle>
+            <CardTitle className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Chat</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <ScrollArea className="h-[500px] pr-4" ref={scrollRef}>
@@ -261,7 +261,7 @@ const Chat = () => {
                 onChange={(e) => setNewMessage(e.target.value)}
                 disabled={sending}
               />
-              <Button type="submit" disabled={!newMessage.trim() || sending}>
+              <Button type="submit" disabled={!newMessage.trim() || sending} className="shadow-neon hover:shadow-glow">
                 {sending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (

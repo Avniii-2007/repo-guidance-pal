@@ -91,13 +91,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 gradient-subtle">
-      <Card className="w-full max-w-md shadow-elegant">
+    <div className="min-h-screen flex items-center justify-center p-4 gradient-mesh relative">
+      <div className="absolute inset-0 cyber-grid opacity-20"></div>
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] gradient-glow"></div>
+      <Card className="w-full max-w-md neon-border glass-effect shadow-glow animate-scale-in relative">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center bg-clip-text text-black">
+          <CardTitle className="text-3xl text-center bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
             MentorMatch
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-muted-foreground">
             Connect with mentors in open source
           </CardDescription>
         </CardHeader>

@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquare, Star } from "lucide-react";
+import { BookOpen, MessageSquare, Star, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import MentorSelectionDialog from "@/components/MentorSelectionDialog";
+import StudentConversations from "./StudentConversations";
 
 interface Mentor {
   id: string;
@@ -139,26 +140,39 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2">Explore Open Source Projects</h2>
-        <p className="text-muted-foreground">
-          Find projects you're interested in and connect with experienced mentors
-        </p>
+    <div className="space-y-8">
+      <div className="relative">
+        <div className="absolute inset-0 gradient-glow opacity-50 blur-3xl"></div>
+        <div className="relative">
+          <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
+            Explore Open Source Projects
+          </h2>
+          <p className="text-muted-foreground">
+            Find projects you're interested in and connect with experienced mentors
+          </p>
+        </div>
       </div>
 
+      <StudentConversations studentId={profile.id} />
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {repositories.map((repo) => (
-          <Card key={repo.id} className="shadow-card hover:shadow-elegant transition-smooth">
+        {repositories.map((repo, index) => (
+          <Card 
+            key={repo.id} 
+            className="neon-border glass-effect hover:shadow-glow transition-smooth group animate-fade-in"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
             <CardHeader>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-1">{repo.name}</CardTitle>
+                  <CardTitle className="text-lg line-clamp-1 group-hover:text-primary transition-smooth">
+                    {repo.name}
+                  </CardTitle>
                   <CardDescription className="line-clamp-2 mt-1">
                     {repo.description}
                   </CardDescription>
                 </div>
-                <BookOpen className="h-5 w-5 text-primary flex-shrink-0" />
+                <BookOpen className="h-5 w-5 text-primary flex-shrink-0 group-hover:animate-float" />
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -190,10 +204,10 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 shadow-neon hover:shadow-glow transition-smooth"
                   onClick={() => handleConnect(repo)}
                 >
-                  <MessageSquare className="h-4 w-4 mr-2" />
+                  <Sparkles className="h-4 w-4 mr-2" />
                   Find Mentor
                 </Button>
                 {repo.github_url && (

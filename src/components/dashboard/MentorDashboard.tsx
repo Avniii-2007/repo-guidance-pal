@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, BookOpen, MessageSquare, CheckCircle } from "lucide-react";
+import { Users, BookOpen, MessageSquare, CheckCircle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -96,19 +96,24 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
   const completedRequests = requests.filter(r => r.status === "completed");
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2">Mentor Dashboard</h2>
-        <p className="text-muted-foreground">
-          Manage your mentorships and help students grow in open source
-        </p>
+    <div className="space-y-8">
+      <div className="relative">
+        <div className="absolute inset-0 gradient-glow opacity-50 blur-3xl"></div>
+        <div className="relative">
+          <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
+            Mentor Dashboard
+          </h2>
+          <p className="text-muted-foreground">
+            Manage your mentorships and help students grow in open source
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-card">
+        <Card className="neon-border glass-effect hover:shadow-glow transition-smooth animate-scale-in">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Mentees</CardTitle>
-            <Users className="h-4 w-4 text-primary" />
+            <Users className="h-4 w-4 text-primary animate-glow-pulse" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{acceptedRequests.length}</div>
@@ -116,10 +121,10 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card">
+        <Card className="neon-border glass-effect hover:shadow-glow transition-smooth animate-scale-in" style={{ animationDelay: "0.1s" }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Projects</CardTitle>
-            <BookOpen className="h-4 w-4 text-primary" />
+            <BookOpen className="h-4 w-4 text-accent animate-glow-pulse" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{new Set(requests.map(r => r.repository_id)).size}</div>
@@ -127,10 +132,10 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card">
+        <Card className="neon-border glass-effect hover:shadow-glow transition-smooth animate-scale-in" style={{ animationDelay: "0.2s" }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
-            <MessageSquare className="h-4 w-4 text-primary" />
+            <MessageSquare className="h-4 w-4 text-secondary animate-glow-pulse" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingRequests.length}</div>
@@ -138,10 +143,10 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card">
+        <Card className="neon-border glass-effect hover:shadow-glow transition-smooth animate-scale-in" style={{ animationDelay: "0.3s" }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-primary" />
+            <CheckCircle className="h-4 w-4 text-primary animate-glow-pulse" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedRequests.length}</div>
@@ -161,14 +166,14 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
           {loading ? (
             <p className="text-center py-8 text-muted-foreground">Loading...</p>
           ) : pendingRequests.length === 0 ? (
-            <Card className="shadow-card">
+            <Card className="neon-border glass-effect">
               <CardContent className="py-8">
                 <p className="text-center text-muted-foreground">No pending requests</p>
               </CardContent>
             </Card>
           ) : (
-            pendingRequests.map((request) => (
-              <Card key={request.id} className="shadow-card">
+            pendingRequests.map((request, index) => (
+              <Card key={request.id} className="neon-border glass-effect hover:shadow-glow transition-smooth animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -187,14 +192,14 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
                   <div className="flex gap-2">
                     <Button 
                       onClick={() => handleRequestAction(request.id, "accepted")}
-                      className="flex-1"
+                      className="flex-1 shadow-neon hover:shadow-glow"
                     >
                       Accept
                     </Button>
                     <Button 
                       onClick={() => handleRequestAction(request.id, "rejected")}
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 neon-border hover:bg-destructive/10"
                     >
                       Decline
                     </Button>
@@ -207,14 +212,14 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
 
         <TabsContent value="active" className="space-y-4">
           {acceptedRequests.length === 0 ? (
-            <Card className="shadow-card">
+            <Card className="neon-border glass-effect">
               <CardContent className="py-8">
                 <p className="text-center text-muted-foreground">No active mentorships</p>
               </CardContent>
             </Card>
           ) : (
-            acceptedRequests.map((request) => (
-              <Card key={request.id} className="shadow-card">
+            acceptedRequests.map((request, index) => (
+              <Card key={request.id} className="neon-border glass-effect hover:shadow-glow transition-smooth animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -229,8 +234,8 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
                 <CardContent>
                   <Button 
                     size="sm" 
-                    variant="outline"
                     onClick={() => navigate(`/chat?user=${request.student_id}`)}
+                    className="shadow-neon hover:shadow-glow"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Open Chat
@@ -243,14 +248,14 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
 
         <TabsContent value="completed" className="space-y-4">
           {completedRequests.length === 0 ? (
-            <Card className="shadow-card">
+            <Card className="neon-border glass-effect">
               <CardContent className="py-8">
                 <p className="text-center text-muted-foreground">No completed mentorships</p>
               </CardContent>
             </Card>
           ) : (
-            completedRequests.map((request) => (
-              <Card key={request.id} className="shadow-card">
+            completedRequests.map((request, index) => (
+              <Card key={request.id} className="neon-border glass-effect animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -268,9 +273,12 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
         </TabsContent>
       </Tabs>
 
-      <Card className="shadow-card">
+      <Card className="neon-border glass-effect animate-fade-in">
         <CardHeader>
-          <CardTitle>Getting Started</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary animate-glow-pulse" />
+            Getting Started
+          </CardTitle>
           <CardDescription>
             Set up your mentor profile to start helping students
           </CardDescription>
@@ -285,7 +293,7 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
               <li>Start accepting mentorship requests</li>
             </ul>
           </div>
-          <Button onClick={() => window.location.href = '/mentor-setup'} className="w-full">
+          <Button onClick={() => navigate('/mentor-setup')} className="w-full shadow-neon hover:shadow-glow">
             Set Up Profile
           </Button>
         </CardContent>

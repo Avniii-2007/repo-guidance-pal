@@ -8,80 +8,55 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 250 100% 99%;
-    --foreground: 250 40% 10%;
+    /* Futuristic Black Theme */
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 250 40% 10%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 250 40% 10%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 262 83% 58%;
+    --primary: 270 100% 65%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 262 83% 70%;
+    --primary-glow: 270 100% 75%;
 
-    --secondary: 195 100% 50%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 250 20% 96%;
-    --muted-foreground: 250 10% 45%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 195 100% 50%;
+    --accent: 330 100% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 250 20% 90%;
-    --input: 250 20% 90%;
-    --ring: 262 83% 58%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 270 100% 65%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(195 100% 50%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(250 100% 99%) 0%, hsl(250 60% 98%) 100%);
+    /* Futuristic Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(270 100% 65%) 0%, hsl(330 100% 60%) 50%, hsl(180 100% 50%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(270 50% 10%) 100%);
+    --gradient-glow: radial-gradient(circle at 50% 0%, hsl(270 100% 65% / 0.3) 0%, transparent 50%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(270 100% 65% / 0.3) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(330 100% 60% / 0.2) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(180 100% 50% / 0.2) 0px, transparent 50%);
     
-    /* Shadows */
-    --shadow-elegant: 0 4px 20px -4px hsl(262 83% 58% / 0.15);
-    --shadow-card: 0 2px 8px -2px hsl(250 40% 10% / 0.08);
+    /* Neon Shadows */
+    --shadow-elegant: 0 8px 32px -8px hsl(270 100% 65% / 0.5), 0 0 20px hsl(270 100% 65% / 0.3);
+    --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.5), 0 0 40px hsl(270 100% 65% / 0.1);
+    --shadow-neon: 0 0 10px hsl(270 100% 65% / 0.8), 0 0 20px hsl(270 100% 65% / 0.6), 0 0 30px hsl(270 100% 65% / 0.4);
+    --shadow-glow: 0 0 40px hsl(270 100% 65% / 0.6);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .dark {
-    --background: 250 40% 8%;
-    --foreground: 250 10% 95%;
-
-    --card: 250 30% 12%;
-    --card-foreground: 250 10% 95%;
-
-    --popover: 250 30% 12%;
-    --popover-foreground: 250 10% 95%;
-
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 195 100% 50%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 250 20% 20%;
-    --muted-foreground: 250 10% 65%;
-
-    --accent: 195 100% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 250 20% 20%;
-    --input: 250 20% 20%;
-    --ring: 262 83% 58%;
-
-    --shadow-elegant: 0 4px 20px -4px hsl(262 83% 58% / 0.3);
-    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
@@ -107,6 +82,14 @@ All colors MUST be HSL.
   .gradient-subtle {
     background: var(--gradient-subtle);
   }
+
+  .gradient-mesh {
+    background: var(--gradient-mesh);
+  }
+
+  .gradient-glow {
+    background: var(--gradient-glow);
+  }
   
   .shadow-elegant {
     box-shadow: var(--shadow-elegant);
@@ -115,8 +98,38 @@ All colors MUST be HSL.
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
+
+  .shadow-neon {
+    box-shadow: var(--shadow-neon);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
   
   .transition-smooth {
     transition: var(--transition-smooth);
+  }
+
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+
+  .neon-border {
+    border: 1px solid hsl(270 100% 65% / 0.5);
+    box-shadow: 0 0 10px hsl(270 100% 65% / 0.3), inset 0 0 10px hsl(270 100% 65% / 0.1);
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
   }
 }
