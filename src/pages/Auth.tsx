@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, GraduationCap, Users, Code } from "lucide-react";
+import { Loader2, GraduationCap, Users, Code, Github } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Auth = () => {
@@ -93,6 +93,26 @@ const Auth = () => {
     }
   };
 
+  const handleGithubSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute inset-0 aesthetic-grid opacity-20"></div>
@@ -166,6 +186,25 @@ const Auth = () => {
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign In
+                </Button>
+                
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/50" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGithubSignIn}
+                  className="w-full h-12 ultra-card border-0 hover-lift"
+                >
+                  <Github className="mr-2 h-5 w-5" />
+                  Sign in with GitHub
                 </Button>
               </form>
             </TabsContent>
@@ -251,6 +290,25 @@ const Auth = () => {
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Account
+                </Button>
+                
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/50" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGithubSignIn}
+                  className="w-full h-12 ultra-card border-0 hover-lift"
+                >
+                  <Github className="mr-2 h-5 w-5" />
+                  Sign up with GitHub
                 </Button>
               </form>
             </TabsContent>
