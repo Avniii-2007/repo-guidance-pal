@@ -64,7 +64,12 @@ const MentorSessions = ({ mentorId }: { mentorId: string }) => {
         .eq("mentor_id", mentorId)
         .order("scheduled_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching sessions:", error);
+        throw error;
+      }
+      
+      console.log("Fetched sessions for mentor:", data);
       setSessions(data || []);
     } catch (error: any) {
       console.error("Error fetching sessions:", error);

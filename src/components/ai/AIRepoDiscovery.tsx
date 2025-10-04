@@ -44,6 +44,29 @@ const AIRepoDiscovery = () => {
     mentor: Mentor;
   } | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [mentorshipRequests, setMentorshipRequests] = useState<Record<string, string>>({});
+
+  const fetchMentorshipRequests = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase
+        .from("mentorship_requests")
+        .select("mentor_id, status")
+        .eq("student_id", session.user.id);
+
+      if (error) throw error;
+      
+      const requestsMap: Record<string, string> = {};
+      data?.forEach((req) => {
+        requestsMap[req.mentor_id] = req.status;
+      });
+      setMentorshipRequests(requestsMap);
+    } catch (error: any) {
+      console.error("Error fetching mentorship requests:", error);
+    }
+  };
 
   const handleDiscovery = async () => {
     if (!level || !interests || !careerGoals) {
@@ -86,6 +109,7 @@ const AIRepoDiscovery = () => {
 
       setRecommendations(data.repositories);
       setReasoning(data.reasoning);
+      await fetchMentorshipRequests();
 
       toast({
         title: "Recommendations Ready!",
@@ -103,7 +127,40 @@ const AIRepoDiscovery = () => {
     }
   };
 
-  const handleConnectMentor = (repo: Repository, mentor: Mentor) => {
+  const handleConnectMentor = async (repo: Repository, mentor: Mentor) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabase
+        .from("mentorship_requests")
+        .insert({
+          student_id: session.user.id,
+          mentor_id: mentor.id,
+          repository_id: repo.id,
+          status: "pending",
+          message: `I'm interested in learning more about ${repo.name}`,
+        });
+
+      if (error) throw error;
+
+      await fetchMentorshipRequests();
+
+      toast({
+        title: "Request Sent!",
+        description: `Your mentorship request for ${repo.name} has been sent to ${mentor.name}`,
+      });
+    } catch (error: any) {
+      console.error("Error sending request:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSchedule = (repo: Repository, mentor: Mentor) => {
     setSelectedRepo({
       id: repo.id,
       name: repo.name,
@@ -239,22 +296,46 @@ const AIRepoDiscovery = () => {
                       Available Mentors:
                     </p>
                     <div className="space-y-2">
-                      {repo.mentors.map((mentor) => (
-                        <div
-                          key={mentor.id}
-                          className="flex items-center justify-between p-2 rounded bg-card/50 neon-border"
-                        >
-                          <span className="text-sm">{mentor.name}</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleConnectMentor(repo, mentor)}
-                            className="hover:shadow-neon transition-smooth"
+                      {repo.mentors.map((mentor) => {
+                        const requestStatus = mentorshipRequests[mentor.id];
+                        const isConnected = requestStatus === "accepted";
+                        const isPending = requestStatus === "pending";
+
+                        return (
+                          <div
+                            key={mentor.id}
+                            className="flex items-center justify-between p-2 rounded bg-card/50 neon-border"
                           >
-                            Connect
-                          </Button>
-                        </div>
-                      ))}
+                            <div className="flex-1">
+                              <span className="text-sm">{mentor.name}</span>
+                              {isPending && (
+                                <Badge variant="secondary" className="text-xs ml-2">Pending</Badge>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              {!requestStatus && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleConnectMentor(repo, mentor)}
+                                  className="hover:shadow-neon transition-smooth"
+                                >
+                                  Connect
+                                </Button>
+                              )}
+                              {isConnected && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSchedule(repo, mentor)}
+                                  className="shadow-neon hover:shadow-glow transition-smooth"
+                                >
+                                  Schedule
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

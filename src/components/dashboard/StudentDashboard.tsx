@@ -49,10 +49,31 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
     repoName: string;
   } | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [mentorshipRequests, setMentorshipRequests] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchRepositories();
+    fetchMentorshipRequests();
   }, []);
+
+  const fetchMentorshipRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("mentorship_requests")
+        .select("mentor_id, status")
+        .eq("student_id", profile.id);
+
+      if (error) throw error;
+      
+      const requestsMap: Record<string, string> = {};
+      data?.forEach((req) => {
+        requestsMap[req.mentor_id] = req.status;
+      });
+      setMentorshipRequests(requestsMap);
+    } catch (error: any) {
+      console.error("Error fetching mentorship requests:", error);
+    }
+  };
 
   const fetchRepositories = async () => {
     try {
@@ -96,6 +117,11 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
   };
 
   const handleConnect = async (repo: Repository, mentor: Mentor) => {
+    await createMentorshipRequest(repo.id, repo.name, mentor.id);
+    await fetchMentorshipRequests();
+  };
+
+  const handleSchedule = (repo: Repository, mentor: Mentor) => {
     setSchedulerData({
       mentorId: mentor.id,
       mentorName: mentor.name,
@@ -212,19 +238,55 @@ const StudentDashboard = ({ profile }: { profile: Profile }) => {
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Available Mentors:</p>
                   <div className="space-y-2">
-                    {repo.mentors.map((mentor) => (
-                      <div key={mentor.id} className="flex items-center justify-between p-2 rounded bg-card/50 neon-border">
-                        <span className="text-xs">{mentor.name}</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleConnect(repo, mentor)}
-                          className="hover:shadow-neon transition-smooth"
-                        >
-                          Schedule
-                        </Button>
-                      </div>
-                    ))}
+                    {repo.mentors.map((mentor) => {
+                      const requestStatus = mentorshipRequests[mentor.id];
+                      const isConnected = requestStatus === "accepted";
+                      const isPending = requestStatus === "pending";
+                      
+                      return (
+                        <div key={mentor.id} className="flex items-center justify-between p-2 rounded bg-card/50 neon-border">
+                          <div className="flex-1">
+                            <span className="text-xs block">{mentor.name}</span>
+                            {isPending && (
+                              <Badge variant="secondary" className="text-xs mt-1">Pending</Badge>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            {!requestStatus && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleConnect(repo, mentor)}
+                                className="hover:shadow-neon transition-smooth"
+                              >
+                                Connect
+                              </Button>
+                            )}
+                            {isConnected && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleSchedule(repo, mentor)}
+                                  className="hover:shadow-neon transition-smooth"
+                                >
+                                  <Calendar className="h-3 w-3 mr-1" />
+                                  Schedule
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => window.location.href = `/chat?user=${mentor.id}`}
+                                  className="shadow-neon hover:shadow-glow transition-smooth"
+                                >
+                                  <MessageSquare className="h-3 w-3 mr-1" />
+                                  Chat
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
