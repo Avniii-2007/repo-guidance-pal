@@ -106,7 +106,7 @@ const MentorDashboard = ({ profile }: { profile: Profile }) => {
         <div className="absolute inset-0 gradient-glow opacity-50 blur-3xl"></div>
         <div className="relative flex items-center justify-between">
           <div>
-            <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
+            <h2 className="text-4xl mt-10 font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-glow-pulse">
               Mentor Dashboard
             </h2>
             <p className="text-muted-foreground">
