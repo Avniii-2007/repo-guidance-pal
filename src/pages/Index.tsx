@@ -23,7 +23,7 @@ const Index = () => {
               <ThemeToggle />
               <Button 
                 onClick={() => navigate("/auth")} 
-                className="minimal-button px-6"
+                className="minimal-button px-6 text-black dark:text-white"
               >
                 Sign In
               </Button>
