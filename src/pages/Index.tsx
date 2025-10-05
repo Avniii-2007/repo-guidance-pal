@@ -95,7 +95,7 @@ const Index = () => {
             <div className="ultra-card p-8 hover-lift scale-in group" style={{ animationDelay: "0.1s" }}>
               <div className="space-y-6">
                 <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-smooth">
-                  <BookOpen className="h-8 w-8 text-primary animate-float" />
+                  <BookOpen className="h-8 w-8 text-primary" />
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold">Discover Projects</h3>
@@ -109,7 +109,7 @@ const Index = () => {
             <div className="ultra-card p-8 hover-lift scale-in group" style={{ animationDelay: "0.2s" }}>
               <div className="space-y-6">
                 <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-smooth">
-                  <Users2 className="h-8 w-8 text-accent animate-float" />
+                  <Users2 className="h-8 w-8 text-accent" />
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold">Connect with Mentors</h3>
@@ -123,7 +123,7 @@ const Index = () => {
             <div className="ultra-card p-8 hover-lift scale-in group" style={{ animationDelay: "0.3s" }}>
               <div className="space-y-6">
                 <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-smooth">
-                  <Zap className="h-8 w-8 text-primary animate-float" />
+                  <Zap className="h-8 w-8 text-primary" />
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold">Accelerate Growth</h3>
